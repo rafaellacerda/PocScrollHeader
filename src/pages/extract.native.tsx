@@ -1,30 +1,32 @@
 import React, {useRef} from 'react';
-import {View, StyleSheet, Animated} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Animated,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
 
-import {generateData, calcScroll} from '../utils';
+import {generateData} from '../utils';
 
 import DadosHeader from '../components/dadosHeader.native';
 import Container from '../components/container.native';
 import Header from '../components/header.native';
 import Image from '../components/image.native';
+import MainHeader from '../components/mainHeader.native';
 
 const headerHeight = 54 * 2;
-const data = generateData(50);
+const data: any[] = generateData(50);
 
 const Extract = () => {
   const ref = useRef(null);
-  const translateYNumber = useRef();
 
   const scrollY = useRef(new Animated.Value(0));
   const scrollYClamped = Animated.diffClamp(scrollY.current, 0, headerHeight);
 
   const translateY = scrollYClamped.interpolate({
     inputRange: [0, headerHeight],
-    outputRange: [0, -(headerHeight / 5)],
-  });
-
-  translateY.addListener(({value}) => {
-    translateYNumber.current = value;
+    outputRange: [0, -(headerHeight / 4)],
   });
 
   const handleScroll = Animated.event(
@@ -40,45 +42,28 @@ const Extract = () => {
     },
   );
 
-  const handleSnap = ({nativeEvent}: any) => {
-    const offsetY = nativeEvent.contentOffset.y;
-
-    if (
-      translateYNumber.current === 0 ||
-      translateYNumber.current === -headerHeight / 5
-    )
-      return;
-
-    if (ref.current) {
-      (ref.current as any).scrollToOffset({
-        offset:
-          calcScroll(translateYNumber.current, -headerHeight / 5, 0) ===
-          -headerHeight / 5
-            ? offsetY + headerHeight / 5
-            : offsetY,
-      });
-    }
-  };
+  const headerMain = () => (
+    <Animated.View style={[styles.header, {transform: [{translateY}]}]}>
+      <MainHeader {...{headerHeight}} />
+    </Animated.View>
+  );
 
   return (
     <>
       <Image scrollY={scrollY.current} />
       <Header scrollY={scrollY.current} />
       <View style={styles.main}>
-        <Animated.View
-          style={{
-            height: scrollY.current.interpolate({
-              inputRange: [10, 120, 180],
-              outputRange: [180, 75, 0],
-              extrapolate: 'clamp',
-            }),
-            marginBottom: 15,
-          }}>
-          <DadosHeader />
-        </Animated.View>
-        <Container
-          {...{handleScroll, handleSnap, ref, data, headerHeight, translateY}}
-        />
+        <DadosHeader scrollY={scrollY.current} />
+        <SafeAreaView style={styles.container}>
+          {headerMain()}
+          <ScrollView
+            scrollEventThrottle={16}
+            contentContainerStyle={{paddingTop: headerHeight}}
+            onScroll={handleScroll}
+            ref={ref}>
+            <Container {...{data}} />
+          </ScrollView>
+        </SafeAreaView>
       </View>
     </>
   );
@@ -96,10 +81,10 @@ const styles = StyleSheet.create({
   header: {
     position: 'absolute',
     backgroundColor: '#fff',
-    left: 0,
+    left: 5,
     right: 0,
-    width: '100%',
-    top: 20,
+    width: '97%',
+    top: 16,
     zIndex: 100,
   },
   container: {
