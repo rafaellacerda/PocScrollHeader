@@ -1,5 +1,5 @@
 import React from 'react';
-import {Animated, StyleSheet, Text, Dimensions} from 'react-native';
+import {Animated, StyleSheet, Text, Dimensions, View} from 'react-native';
 
 const {height} = Dimensions.get('window');
 const min = height * 0.14;
@@ -13,29 +13,26 @@ const Header = ({scrollY}: HeaderProps) => {
   return (
     <Animated.View
       style={[
-        styles.cabecalho,
         {
           height: scrollY.interpolate({
             inputRange: [10, 120, max],
             outputRange: [max, min, min],
-            extrapolate: 'clamp',
-          }),
-          opacity: scrollY.interpolate({
-            inputRange: [1, 80, 170],
-            outputRange: [1, 0.8, 0.5],
-            extrapolate: 'clamp',
+            extrapolate: 'extend',
           }),
         },
       ]}>
-      <Text style={styles.textHeader}>Vendas</Text>
+      <View style={styles.cabecalho}>
+        <Text style={styles.textHeader}>Saúde</Text>
+      </View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   cabecalho: {
-    backgroundColor: '#666',
+    backgroundColor: '#000',
     width: '100%',
+    height: '100%',
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
   },
